@@ -1,0 +1,46 @@
+---
+
+# enabled
+doas_enabled: yes
+
+# mode/owner/group/backup/umask defaults
+doas_file_mode: "0440"
+doas_dir_mode: "0750"
+doas_owner: "root"
+doas_group: "wheel"
+doas_backup: true
+doas_umask: "027"
+
+# packages
+doas_packages_freebsd:
+  - security/doas
+
+doas_packages_openbsd: [] # using base
+
+# doas
+doas_cfg_file: "/etc/doas.conf"
+doas_cfg:
+  - action: permit
+    options: [ nopass, keepenv ]
+    identity: "root" # root user
+    # no as defaults to all users
+
+  - action: permit
+    options: [ persist, keepenv ]
+    identity: ":operator" # operator group
+    as: "root"
+
+  - action: "permit"
+    options: [ nopass, keepenv ]
+    identity: "ansible" # ansible user
+    as: "root"
+
+  - action: "permit"
+    options: [ nopass, keepenv ]
+    identity: ":ansible" # ansible group
+    as: "root"
+
+# TODO: cmds and args
+
+# vim: set syn=yaml sw=2 ts=2 et colorcolumn=160 :
+# eof

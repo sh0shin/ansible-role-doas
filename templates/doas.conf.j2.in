@@ -1,0 +1,13 @@
+# {{ doas_cfg_file }}
+# {{ ansible_managed }}
+
+{% for doas in doas_cfg                                                                 %}
+{%  set _doas = doas.action ~ ' ' ~ doas.options | join (' ') ~ ' ' ~ doas.identity     %}
+{%  if doas.as is defined                                                               %}
+{%    set _doas = _doas ~ ' as ' ~ doas.as                                              %}
+{%  endif                                                                               %}
+{{ _doas }}
+{% endfor                                                                               %}
+
+# vim: set sw=2 ts=2 et :
+# eof

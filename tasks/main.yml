@@ -1,0 +1,72 @@
+---
+
+# forced os variables
+- name: forced os variables
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ ansible_distribution }}-{{ ansible_machine | default("none") }}.yml'
+        - '{{ ansible_distribution }}-{{ ansible_distribution_release | default(0) }}.yml'
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version | default(0) }}.yml'
+        - '{{ ansible_distribution }}-{{ ansible_distribution_major_version | default(0) }}.yml'
+        - '{{ ansible_distribution }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - 'main.yml'
+      paths:
+        - 'vars'
+  when: doas_enabled
+        and ansible_os_family | string in doas_os_family_supported
+  tags: [ doas ]
+
+# packages
+- name: packages (freebsd)
+  pkgng:
+    name: '{{ doas_packages_freebsd | default([]) }}'
+    state: '{{ doas_packages_freebsd_state | default("latest") }}'
+    cached: '{{ doas_packages_freebsd_cached | default(false) }}'
+  when: doas_enabled
+        and ansible_os_family | string in doas_os_family_supported
+        and ansible_os_family == 'FreeBSD'
+  tags: [ doas ]
+
+- name: packages (openbsd)
+  openbsd_pkg:
+    name: '{{ doas_packages_openbsd | default([]) }}'
+    state: '{{ doas_packages_openbsd_state | default("latest") }}'
+  when: doas_enabled
+        and ansible_os_family | string in doas_os_family_supported
+        and ansible_os_family == 'OpenBSD'
+  tags: [ doas ]
+
+# doas
+- name: doas config (template)
+  template:
+    dest: '{{ doas_cfg_file }}'
+    src: "{{ lookup('first_found', params) }}"
+    #
+    mode: '{{ doas_cfg_file_mode | default(doas_file_mode) }}'
+    owner: '{{ doas_cfg_file_owner | default(doas_owner) }}'
+    group: '{{ doas_cfg_file_group | default(doas_group) }}'
+    backup: '{{ doas_cfg_file_backup | default(doas_backup) }}'
+    validate: '{{ doas_cfg_file_validate | default(omit) }}'
+  vars:
+    tpl_default: "doas.conf"
+    tpl_presence: '{{ doas_cfg_file_template | default(tpl_default) }}'
+    params:
+      files:
+        - '{{ tpl_presence }}.{{ inventory_hostname }}.j2'
+        - '{{ tpl_presence }}.{{ ansible_distribution }}-{{ ansible_distribution_version | default(0) }}.j2'
+        - '{{ tpl_presence }}.{{ ansible_distribution }}-{{ ansible_distribution_major_version | default(0) }}.j2'
+        - '{{ tpl_presence }}.{{ ansible_distribution }}.j2'
+        - '{{ tpl_presence }}.{{ ansible_os_family }}.j2'
+        - '{{ tpl_presence }}.j2'
+        - '{{ tpl_presence }}.j2.in' # role default
+      paths:
+        - 'templates'
+  when: doas_enabled
+        and ansible_os_family | string in doas_os_family_supported
+  tags: [ doas ]
+
+# vim: set syn=yaml sw=2 ts=2 et colorcolumn=160 :
+# eof
