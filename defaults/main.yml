@@ -13,7 +13,7 @@ doas_umask: "027"
 
 # packages
 doas_packages_freebsd:
-  - security/doas
+  - doas
 
 doas_packages_openbsd: [] # using base
 
