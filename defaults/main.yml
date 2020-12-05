@@ -1,7 +1,7 @@
 ---
 
 # enabled
-doas_enabled: yes
+doas_enabled: no
 
 # mode/owner/group/backup/umask defaults
 doas_file_mode: "0440"

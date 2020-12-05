@@ -15,7 +15,7 @@ Doas management
 ```yaml
 - hosts: all
   roles:
-    - { role: sh0shin.doas }
+    - { role: sh0shin.doas, doas_enabled: yes }
 ```
 
 ## License
